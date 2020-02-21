@@ -21,6 +21,9 @@ library(leaflet)
 r_colors <- rgb(t(col2rgb(colors()) / 255))
 names(r_colors) <- colors()
 
+df <- read.delim('data/database.csv', sep =',', header = TRUE)
+df <- na.omit(df) 
+
 # Culdev <- read.delim("C:/perso/ble/data/FDS_DEVELOPPE_2017.csv", header=TRUE, sep=";")
 
 # Define UI for application that draws a histogram

@@ -15,9 +15,9 @@ Projet R shiny du dataset Kaggle "active-satellites"s
 
 * [Fatima MDOIHOMA](https://github.com/fatima592)
   * https://github.com/fatima592
-*	[Davy CATALAN](https://github.com/davy9233)
+* [Davy CATALAN](https://github.com/davy9233)
   * https://github.com/davy9233
-* 	[laurent Echeverria](https://github.com/Paroxyste)
+* [laurent Echeverria](https://github.com/Paroxyste)
   * https://github.com/Paroxyste
 * [Cédric Dromzée](https://github.com/DROMZEE)
   * https://github.com/DROMZEE
