@@ -7,9 +7,8 @@ Projet R shiny du dataset Kaggle "active-satellites"s
 
 # techno
 
-* Python
-* Django
-* PostgreSQL
+* R
+* Shiny
 
 
 ## Contributeurs
