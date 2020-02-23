@@ -10,8 +10,8 @@ library(tidyr)
 
 # Tables
 #https://www.kaggle.com/ucsusa/active-satellites/download
-df <- read.delim('../data/database.csv', 
-                 sep =',', 
+df_as <- read.delim('../data/active-satellites.csv', 
+                 sep =';', 
                  header = TRUE, 
                  na.strings=c('','NA'))
 
@@ -25,19 +25,92 @@ ui <- navbarPage(
   'Satellites',
   theme = shinytheme('cerulean'),
   
+#Onglet 1 : graphique interactif
+  tabPanel('Graphique interactif',
+           sidebarLayout(
+             sidebarPanel(
+               conditionalPanel(
+                 'input.dataset === "Plot"',
+                 helpText("Modifier les variables"),
+                 
+                 selectInput("varX", 
+                             label = "sélectionnez la variables sur l'axe X",
+                             choices = c("Opérateur.propriétaire" = "Opérateur.propriétaire", 
+                                         "Utilisateurs" = "Utilisateurs",
+                                         "fournisseur" = "fournisseur", 
+                                         "Site.de.lancement" = "Site.de.lancement"),
+                             selected = "Site.de.lancement"),
+                 
+                 selectInput("varY", 
+                             label = "sélectionnez la variables sur l'axe Y",
+                             choices = c("Opérateur.propriétaire" = "Opérateur.propriétaire", 
+                                         "Utilisateurs" = "Utilisateurs",
+                                         "fournisseur" = "fournisseur", 
+                                         "Site.de.lancement" = "Site.de.lancement"),
+                             selected = "Utilisateurs"),
+                 
+                 actionButton("update", "afficher")
+                 #mainPanel("Plot",  plotOutput("Plot1"))
+                 
+               )
+               #mainPanel("Plot",  plotOutput("Plot1"))
+             ),
+             mainPanel("Plot",  plotOutput("Plot1"))
+           )
+  ),
+#Onglet 2 : tableau
+  tabPanel('Ventes Opérateurs',
+           sidebarLayout(
+             sidebarPanel(
+               img(src = 'user_icon.png', width = 70, align = 'center'),
+               #h4('Benoit Jean'),
+               tags$hr(),
+               helpText('Filtrez les données en sélectionnant les critères qui vous intéressent.'),
+               
+               selectInput('sel_sat',
+                           'satellite :',
+                           c('Tout',
+                             unique(as.character(df_as$Nom.officiel.du.satellite)))),
+               
+               selectInput('sel_type',
+                           'Utilisateurs :',
+                           c('Tout',
+                             unique(as.character(df_as$Utilisateurs)))),
+               
+               selectInput('sel_objt',
+                           'Objectif:',
+                           c('Tout',
+                             unique(as.character(df_as$Objectif)))),
+               
+               selectInput('sel_site',
+                           'Site.de.lancement :',
+                           c('Tout',
+                             unique(as.character(df_as$Site.de.lancement)))),
+               tags$hr()
+               
+             ),
+             
+             mainPanel(
+               h2('Satellite'),
+               DT::dataTableOutput('satellite')
+             )
+           )
+  ),
+  
+#Onglet carte
   tabPanel('Carte Interactive',
            sidebarLayout(
              sidebarPanel(
                img(src = 'user_icon.png', width = 70, align = 'center'),
                h4('B'),
-               tags$hr(),
+               tags$hr()
              ),
              mainPanel(
                
                h2('Carte Interactive'),
                h4('Visualisation des pays'),
                leafletOutput("mymap"),
-               p(),
+               p()
                #actionButton("recalc", "Nouveau point")
              )
            )
@@ -63,7 +136,43 @@ ui <- navbarPage(
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
   
+  ### plot
   
+  updateAll <- eventReactive(input$update, {
+    #plot(df_as[[input$varX]] , df_as[[input$varY]], col = df_as$Site.de.lancement ,
+    plot(df_as[[input$varX]] , df_as[[input$varY]] ,
+         xlab = input$varX,
+         ylab = input$varY,
+         
+         main = "Graphique")
+  })
+  #output for onlet Plot
+  output$Plot1 <- renderPlot({
+    
+    updateAll()
+    
+    
+  })
+  
+  #### Tab
+  #df_as$Nom.officiel.du.satellite
+  
+  output$satellite <- DT::renderDataTable(DT::datatable({
+    data <- df_as
+    if (input$sel_sat != 'Tout'){
+      data <- data[data$Nom.officiel.du.satellite == input$sel_sat, ]
+    }
+    if (input$sel_type != 'Tout'){
+      data <- data[data$Utilisateurs == input$sel_type, ]
+    }
+    if (input$sel_objt != 'Tout'){
+      data <- data[data$Objectif == input$sel_objt, ]
+    }
+    if (input$sel_site != 'Tout'){
+      data <- data[data$Site.de.lancement == input$sel_site, ]
+    }
+    data
+  }))
   
   ########################################
   ##### Cartes
