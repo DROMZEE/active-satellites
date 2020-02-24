@@ -8,6 +8,7 @@ library(ggplot2)
 library(hrbrthemes)
 library(tidyr)
 library(DT)
+library(sf)
 
 # Tables
 #https://www.kaggle.com/ucsusa/active-satellites/download
@@ -16,6 +17,8 @@ df_as <- read.delim('data/active-satellites.csv',
                     header = TRUE,
                     encoding="UTF-8",
                     na.strings=c('','NA'))
+
+gps <- st_read("data/doc.kml")
 
 todayDate <- format(Sys.time(), "%a %d %b %Y")
 
