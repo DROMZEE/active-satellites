@@ -1,0 +1,13 @@
+name: active-satellites
+title: active-satellites
+username:
+account: dromzee
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1855547
+bundleId: 2825424
+url: https://dromzee.shinyapps.io/active-satellites/
+when: 1582571473.91426
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|tmp/server.R|tmp/ui.R
