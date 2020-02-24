@@ -2,13 +2,14 @@ library(shinyWidgets)
 library(leaflet)
 library(dplyr)
 library(shiny)
-library(shinydashboard)
+#library(shinydashboard)
 library(shinythemes)
 library(ggplot2)
+library(plotly)
 library(hrbrthemes)
 library(tidyr)
 library(DT)
-library(sf)
+#library(sf)
 
 # Tables
 #https://www.kaggle.com/ucsusa/active-satellites/download
@@ -18,7 +19,11 @@ df_as <- read.delim('data/active-satellites.csv',
                     encoding="UTF-8",
                     na.strings=c('','NA'))
 
-gps <- st_read("data/doc.kml")
+#gps <- st_read("data/doc.kml")
+sites <- read.csv("data/sites.csv",
+                  sep =';',
+                  header = TRUE,
+                  encoding="UTF-8")
 
 todayDate <- format(Sys.time(), "%a %d %b %Y")
 
@@ -29,10 +34,14 @@ names(r_colors) <- colors()
 ui <- navbarPage(
     'Satellites',
     theme = shinytheme('cerulean'),
+    #shinythemes::themeSelector(),
     
     
     # Titre de l’application 
     #titlePanel("Data exploration"),
+    
+    # header <- dashboardHeader(title = "Mon application Shinydashboard", 
+    #                           titleWidth = 350) ,
     
     #Onglet 1 : graphique interactif
     tabPanel('Graphique interactif',
@@ -70,6 +79,27 @@ ui <- navbarPage(
                  
              )
     ),
+    
+    # onglet test plotlyOutput("plot"))
+    # 
+    # tabPanel("Graphiques", 
+    #          h1("Graphiques"), 
+    #          h4("Choisissez deux variables à représenter :"), 
+    #          selectInput("variable_x", "Variable X:", 
+    #                      # list("libellé = "nom.variable") 
+    #                      list("Opérateur.propriétaire" = "Opérateur.propriétaire", 
+    #                           "Utilisateurs" = "Utilisateurs",
+    #                           "fournisseur" = "fournisseur", 
+    #                           "Site.de.lancement" = "Site.de.lancement")), 
+    #          selectInput("variable_y", "Variable Y:", 
+    #                      list("Opérateur.propriétaire" = "Opérateur.propriétaire", 
+    #                           "Utilisateurs" = "Utilisateurs",
+    #                           "fournisseur" = "fournisseur", 
+    #                           "Site.de.lancement" = "Site.de.lancement")),
+    # plotlyOutput("plot")),
+    
+    
+    
     # onglet 2 : Résumé statistique
     tabPanel( 
       "Résumé statistique", 
@@ -126,37 +156,35 @@ ui <- navbarPage(
     tabPanel('Carte Interactive',
              sidebarLayout(
                  sidebarPanel(
-                     img(src = 'user_icon.png', width = 70, align = 'center'),
+                     #img(src = 'user_icon.png', width = 70, align = 'center'),
                      h4('B'),
                      tags$hr()
                  ),
                  mainPanel(
                      
                      h2('Carte Interactive'),
-                     h4('Visualisation des pays'),
+                     h4('Visualisation des sites de lancements'),
                      leafletOutput("mymap"),
                      p()
-                     #actionButton("recalc", "Nouveau point")
                  )
              )
-    ),
+    )
     
     
-    # Footer
-    tags$footer("Kaggle satellites -  
-              Dashboard By Fatima - Davy - Laurent - Cédric DROMZEE - 2020",
-                align = "center", 
-                style = "
-              position:absolute;
-              bottom:0;
-              width:100%;
-              height:50px;   /* Height of the footer */
-              color: white;
-              padding: 10px;
-              background-color: #3A9AD1;
-              z-index: 1000;")
 )
-
+# Footer
+tags$footer("Kaggle satellites -  
+            Dashboard By Fatima - Davy - Laurent - Cédric DROMZEE - 2020",
+            align = "center", 
+            style = "
+            position:absolute;
+            bottom:0;
+            width:100%;
+            height:50px;   /* Height of the footer */
+            color: white;
+            padding: 10px;
+            background-color: #3A9AD1;
+            z-index: 1000;")
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
@@ -181,6 +209,17 @@ server <- function(input, output, session) {
         plot(x=df_as[[input$varx]],y=df_as[[input$vary]],xlim = input$varx,ylim = input$vary)
         
     })
+    
+    # # Onglet Graphiques, deux variables 
+    # output$plot <- renderPlotly({ 
+    #   g <- ggplot(df_as, aes_string(x=input$variable_x, 
+    #                                y=input$variable_y, 
+    #                                colour="Utilisateurs")) + 
+    #     #point() + 
+    #     #geom_smooth(method = "lm") 
+    #     geom_histogram()
+    #   ggplotly(g) 
+    # }) 
     
     ### Onglet 2
     
@@ -219,21 +258,26 @@ server <- function(input, output, session) {
     ##### Cartes
     
     
-    villes <- data.frame(Ville = c("Bayonne","kourou"),
-                         Latitude = c(43.483333,5.1694),
-                         Longitude = c(-1.483333,-52.6832),
-                         Population = c(4115,5115))
+    # villes <- data.frame(Ville = c("Bayonne","kourou"),
+    #                      Latitude = c(43.483333,5.1694),
+    #                      Longitude = c(-1.483333,-52.6832),
+    #                      Population = c(4115,5115))
+    
+    # sites <- data.frame(Site = c(sites$Launch.Site),
+    #                      Latitude = c(geoLat),
+    #                      Longitude = c(sites$geoLon),
+    #                      Population = c(sites$number))
     
     
-    couleurs <- colorNumeric("YlOrRd", villes$Population, n = 5)
+    couleurs <- colorNumeric("YlOrRd", sites$number, n = 5)
     
     output$mymap <- renderLeaflet({
-        leaflet(villes) %>% 
+        leaflet(sites) %>% 
             addTiles() %>%
-            addCircles(lng = ~Longitude, lat = ~Latitude, weight = 1,
-                       radius = ~sqrt(Population) * 5000, popup = ~paste(Ville, ":", Population),
-                       color = ~couleurs(Population), fillOpacity = 0.9) %>%
-            addLegend(pal = couleurs, values = ~Population, opacity = 0.9)
+            addCircles(lng = ~geoLon, lat = ~geoLat, weight = 1,
+                       radius = ~sqrt(number) * 50000, popup = ~paste(number),
+                       color = ~couleurs(number), fillOpacity = 0.9) %>%
+            addLegend(pal = couleurs, values = ~number, opacity = 0.9)
     })
     
 }
