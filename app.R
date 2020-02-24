@@ -30,6 +30,10 @@ ui <- navbarPage(
     'Satellites',
     theme = shinytheme('cerulean'),
     
+    
+    # Titre de l’application 
+    #titlePanel("Data exploration"),
+    
     #Onglet 1 : graphique interactif
     tabPanel('Graphique interactif',
              sidebarLayout(
@@ -61,11 +65,24 @@ ui <- navbarPage(
                      #mainPanel("Plot",  plotOutput("Plot1"))
                  ),
                  mainPanel("Plot", 
-                           h3("ausecours"),plotOutput("Plot1")),
+                           h3("ausecours"),plotOutput("Plot1"))
                  
                  
              )
     ),
+    # onglet 2 : Résumé statistique
+    tabPanel( 
+      "Résumé statistique", 
+      h1("Tableau descriptif"), 
+
+      #rendu fonction summary 
+      verbatimTextOutput("summary"), 
+      h2("Structure des données"), 
+      #rendu fonction str 
+      verbatimTextOutput("str") 
+    ),
+    
+    
     #Onglet 2 : tableau
     tabPanel('Données',
              sidebarLayout(
@@ -163,6 +180,19 @@ server <- function(input, output, session) {
         
         plot(x=df_as[[input$varx]],y=df_as[[input$vary]],xlim = input$varx,ylim = input$vary)
         
+    })
+    
+    ### Onglet 2
+    
+    
+    # résumé des données 
+    output$summary <- renderPrint({ 
+      summary(df_as) 
+    }) 
+    
+    # structure des données 
+    output$str <- renderPrint({ 
+      str(df_as) 
     })
     
     #### Tab
