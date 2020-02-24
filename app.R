@@ -11,7 +11,7 @@ library(DT)
 
 # Tables
 #https://www.kaggle.com/ucsusa/active-satellites/download
-df_as <- read.delim('C://perso/ble/active-satellites.csv', 
+df_as <- read.delim('data/active-satellites.csv', 
                     sep =';', 
                     header = TRUE,
                     encoding="UTF-8",
@@ -64,7 +64,7 @@ ui <- navbarPage(
              )
     ),
     #Onglet 2 : tableau
-    tabPanel('Ventes Opérateurs',
+    tabPanel('Données',
              sidebarLayout(
                  sidebarPanel(
                      img(src = 'user_icon.png', width = 70, align = 'center'),
